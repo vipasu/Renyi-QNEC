@@ -20,12 +20,12 @@ module util
         return ket
     end
 
-    function extract_vectors(psi, b::Int64)
+    function extract_vectors(psi, b::Int64, localdim=2)
         ket = get_ket(psi, b)
         svd_result = svd(ket,tuple([ket.inds[i] for i = 1:b]...,), full=true, cutoff=1e-30)
         S = svd_result.S
         #     println(S)
-        n = 2^b     #     println(n)
+        n = localdim^b     #     println(n)
         num_elems = size(svd_result.U.store)[1]
         num_columns = num_elems÷n
         U = reshape(svd_result.U.store, (n,num_columns))
@@ -72,7 +72,7 @@ module util
         Qn =  Q .^((1-n)/n)
         sandwich_vals = real.(eigen(WdagV * Diagonal(P) * WdagV' * Diagonal(Qn)).values)
         # raise an issue if complex part is large
-        # floor the negative eigenvalues if they are below cutoff
+e       # floor the negative eigenvalues if they are below cutoff
             # should this go here or up ahead?
         sandwich_vals = filter(x -> (x > 0) .& (abs(x) > 1e-60), sandwich_vals)
     #     println(real.(sandwich_vals))
@@ -89,13 +89,13 @@ module util
     end
 
 
-    function calculate_relative_entropies(phi, psi, N)
+    function calculate_relative_entropies(phi, psi, N, localdim)
         # assumes psi is the vacuum
         s_rel = Float64[]
         for i=1:2 *N÷3
     #         println(i)
-            W, Q = extract_vectors(psi, i);
-            V, P = extract_vectors(phi, i);
+            W, Q = extract_vectors(psi, i, localdim);
+            V, P = extract_vectors(phi, i, localdim);
             push!(s_rel, relative_entropy(V,P,W,Q))
         end
         s_rel
