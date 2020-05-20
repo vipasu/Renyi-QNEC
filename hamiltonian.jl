@@ -1,7 +1,7 @@
 module hamiltonian
     using ITensors
     export TFIM_Hamiltonian, XXZ_Hamiltonian, ground_state, excited_state
-    export Heisenberg_1
+    export Heisenberg_1, WZW_2_2
 
     function TFIM_Hamiltonian(N,
                             Jz::Float64=-1.,
@@ -32,30 +32,41 @@ module hamiltonian
         sites = siteinds("S=1",N)
         ampo = AutoMPO()
         for j=1:N-1
-          add!(ampo,1 ,"S+",j,"S-",j+1,"S+",j,"S-",j+1)
-          add!(ampo,1 ,"S+",j,"S-",j+1,"S-",j,"S+",j+1)
-          add!(ampo,1 ,"S-",j,"S+",j+1,"S-",j,"S+",j+1)
-          add!(ampo,1 ,"S-",j,"S+",j+1,"S+",j,"S-",j+1)
 
-          add!(ampo,2 ,"S+",j,"S-",j+1,"Sz",j,"Sz",j+1)
-          add!(ampo,2 ,"S-",j,"S+",j+1,"Sz",j,"Sz",j+1)
-          add!(ampo,2 ,"Sz",j,"Sz",j+1,"S+",j,"S-",j+1)
-          add!(ampo,2 ,"Sz",j,"Sz",j+1,"S-",j,"S+",j+1)
+          # S dot S
+          add!(ampo, 2, "S+", j, "S-", j+1)
+          add!(ampo, 2, "S-", j, "S+", j+1)
+          add!(ampo, 4, "Sz", j, "Sz", j+1)
 
-          add!(ampo,4 ,"Sz",j,"Sz",j+1,"Sz",j,"Sz",j+1)
+          # - (S dot S) ^2
+          add!(ampo, -1, "S+", j, "S-", j+1, "S+", j, "S-", j+1)
+          add!(ampo, -1, "S+", j, "S-", j+1, "S-", j, "S+", j+1)
+          add!(ampo, -1, "S-", j, "S+", j+1, "S-", j, "S+", j+1)
+          add!(ampo, -1, "S-", j, "S+", j+1, "S+", j, "S-", j+1)
+
+          add!(ampo, -2, "S+", j, "S-", j+1, "Sz", j, "Sz", j+1)
+          add!(ampo, -2, "S-", j, "S+", j+1, "Sz", j, "Sz", j+1)
+          add!(ampo, -2, "Sz", j, "Sz", j+1, "S+", j, "S-", j+1)
+          add!(ampo, -2, "Sz", j, "Sz", j+1, "S-", j, "S+", j+1)
+
+          add!(ampo, -4, "Sz", j, "Sz", j+1, "Sz", j, "Sz", j+1)
         end
         # PBC
-        add!(ampo,1 ,"S+",N,"S-",1,"S+",N,"S-",1)
-        add!(ampo,1 ,"S+",N,"S-",1,"S-",N,"S+",1)
-        add!(ampo,1 ,"S-",N,"S+",1,"S-",N,"S+",1)
-        add!(ampo,1 ,"S-",N,"S+",1,"S+",N,"S-",1)
+        add!(ampo, 2, "S+", N, "S-", 1)
+        add!(ampo, 2, "S-", N, "S+", 1)
+        add!(ampo, 4, "Sz", N, "Sz", 1)
 
-        add!(ampo,2 ,"S+",N,"S-",1,"Sz",N,"Sz",1)
-        add!(ampo,2 ,"S-",N,"S+",1,"Sz",N,"Sz",1)
-        add!(ampo,2 ,"Sz",N,"Sz",1,"S+",N,"S-",1)
-        add!(ampo,2 ,"Sz",N,"Sz",1,"S-",N,"S+",1)
+        add!(ampo, -1, "S+", N, "S-", 1, "S+", N, "S-", 1)
+        add!(ampo, -1, "S+", N, "S-", 1, "S-", N, "S+", 1)
+        add!(ampo, -1, "S-", N, "S+", 1, "S-", N, "S+", 1)
+        add!(ampo, -1, "S-", N, "S+", 1, "S+", N, "S-", 1)
 
-        add!(ampo,4 ,"Sz",N,"Sz",1,"Sz",N,"Sz",1)
+        add!(ampo, -2, "S+", N, "S-", 1, "Sz", N, "Sz", 1)
+        add!(ampo, -2, "S-", N, "S+", 1, "Sz", N, "Sz", 1)
+        add!(ampo, -2, "Sz", N, "Sz", 1, "S+", N, "S-", 1)
+        add!(ampo, -2, "Sz", N, "Sz", 1, "S-", N, "S+", 1)
+
+        add!(ampo, -4, "Sz", N, "Sz", 1, "Sz", N, "Sz", 1)
 
         # Convert these terms to an MPO tensor network
 
