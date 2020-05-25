@@ -1,9 +1,11 @@
 module util
     using LinearAlgebra
     using ITensors
+    using HDF5
     export vN_entropy, get_ket, extract_vectors, relative_entropy, sandwiched_renyi_divergence
     export calculate_relative_entropies, calculate_srds
     export calculate_entropies
+    export save_MPS, load_MPS, get_num_wf
 
     function vN_entropy(spec)
         entries = [-s * log(s) for s in spec if s > 0]
@@ -112,5 +114,28 @@ e       # floor the negative eigenvalues if they are below cutoff
         end
         srd
     end
+
+   function load_MPS(fname, desc)
+       fi = h5open("$fname.h5", "r")
+       rmps = read(fi, desc, MPS)
+       close(fi)
+       return rmps
+   end
+
+   function save_MPS(psi, fname, desc)
+       fo = h5open("$fname.h5", "cw")
+       write(fo, desc, psi)
+       close(fo)
+   end
+
+  function get_num_wf(fname)
+       fi = h5open("$fname.h5", "r")
+       name_list = names(fi)
+       num_wf = length([n for n in name_list if occursin("wf", n)])
+       close(fi)
+       return num_wf
+  end
+
+
 
 end
