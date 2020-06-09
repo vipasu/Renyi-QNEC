@@ -7,11 +7,11 @@ using .hamiltonian
 
 
 
-sweeps = Sweeps(12)
+sweeps = Sweeps(15)
 maxdim!(sweeps, 10,20,100,100,200, 500, 1000, 1000, 2000, 2000, 2000, 4000)
 cutoff!(sweeps, 1E-30)
 
-N = 12
+N = 20
 H_XXZ, sites = Heisenberg_1(N)
 
 e_0, psi_0 = ground_state(H_XXZ, sites, sweeps)
