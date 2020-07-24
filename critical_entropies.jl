@@ -1,14 +1,29 @@
 using ITensors
 using Plots
-# using JLD2, FileIO
-using JLD
 include("./util.jl")
 include("./hamiltonian.jl")
 using .util
 using .hamiltonian
 
-wfs = load("WZW_16.jld", "wfs")
+s = ArgParseSettings()
+@add_arg_table! s begin
+    "--N_sites", "-N"
+    help = "Number of sites"
+    arg_type = Int
+    default = 8
+    "--model"
+    help = "Name of spin chain"
+    arg_type = String
+    default = "TFIM"
+end
 
-plot(calculate_entropies(wfs[1], 20), title="WZW_16")
+args = parse_args(s)
+N = args["N_sites"]
+model = args["model"]
+local_dim = dim_dict("$model")
 
-savefig("../plots/WZW 16 plot")
+wf1 = util.load_MPS("data/$(model)_$N", "wf1")
+
+plot(calculate_entropies(wf1, N, local_dim), title="$(model)_$N")
+
+savefig("plots/$model $N ground state entropy")
