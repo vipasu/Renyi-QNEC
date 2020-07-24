@@ -74,17 +74,17 @@ module util
         Qn =  Q .^((1-n)/n)
         sandwich_vals = real.(eigen(WdagV * Diagonal(P) * WdagV' * Diagonal(Qn)).values)
         # raise an issue if complex part is large
-e       # floor the negative eigenvalues if they are below cutoff
+        # floor the negative eigenvalues if they are below cutoff
             # should this go here or up ahead?
         sandwich_vals = filter(x -> (x > 0) .& (abs(x) > 1e-60), sandwich_vals)
     #     println(real.(sandwich_vals))
         return 1/(n-1) * log(sum(sandwich_vals.^n))
     end
 
-    function calculate_entropies(psi, N)
+    function calculate_entropies(psi, N, localdim)
         entropies = Float64[]
         for i=1:2 *N÷3
-            V, P = extract_vectors(psi, i);
+            V, P = extract_vectors(psi, i, localdim);
             push!(entropies, vN_entropy(P))
         end
         entropies
@@ -103,13 +103,13 @@ e       # floor the negative eigenvalues if they are below cutoff
         s_rel
     end
 
-    function calculate_srds(phi, psi, N, n)
+    function calculate_srds(phi, psi, N, n, localdim)
         # assumes psi is the vacuum
         srd = Float64[]
         for i=1:2 *N÷3
     #         println(i)
-            W, Q = extract_vectors(psi, i);
-            V, P = extract_vectors(phi, i);
+            W, Q = extract_vectors(psi, i, localdim);
+            V, P = extract_vectors(phi, i, localdim);
             push!(srd, sandwiched_renyi_divergence(V,P,W,Q, n))
         end
         srd
