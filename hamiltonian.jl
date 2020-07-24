@@ -3,6 +3,7 @@ module hamiltonian
     export TFIM_Hamiltonian, XXZ_Hamiltonian, ground_state, excited_state
     export Heisenberg_Hamiltonian, WZW_2_2_Hamiltonian
     export H_dict
+    export dim_dict
 
 
     function TFIM_Hamiltonian(N,
@@ -137,6 +138,11 @@ module hamiltonian
         energy, psi
     end
 
+    dim_dict = Dict("TFIM" => 2,       # spin 1/2
+                    "XXZ" => 2,        # spin 1/2
+                    "Heisenberg" => 3, # spin 1
+                    "WZW" => 3         # spin 1
+                    )
     H_dict = Dict("TFIM" => TFIM_Hamiltonian,
                   "XXZ" => XXZ_Hamiltonian,
                   "Heisenberg" => Heisenberg_Hamiltonian,
