@@ -1,9 +1,10 @@
 using ITensors
 using Plots
-include("./util.jl")
-include("./hamiltonian.jl")
+include("../src/util.jl")
+include("../src/hamiltonian.jl")
 using .util
 using .hamiltonian
+using ArgParse
 
 s = ArgParseSettings()
 @add_arg_table! s begin
@@ -20,10 +21,10 @@ end
 args = parse_args(s)
 N = args["N_sites"]
 model = args["model"]
-local_dim = dim_dict("$model")
+local_dim = dim_dict[model]
 
-wf1 = util.load_MPS("data/$(model)_$N", "wf1")
+wf1 = util.load_MPS("../data/$(model)_$N", "wf1")
 
 plot(calculate_entropies(wf1, N, local_dim), title="$(model)_$N")
 
-savefig("plots/$model $N ground state entropy")
+savefig("../plots/$model $N ground state entropy")
